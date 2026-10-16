@@ -1,45 +1,81 @@
 # FluxPay — Payment Processing & Reconciliation Sandbox
 
-FluxPay is a full-stack payment-processing and operations dashboard built to demonstrate backend engineering, transaction management, event-driven architecture, and financial ledger design.
+FluxPay is a full-stack payment-processing and reconciliation sandbox built to demonstrate backend engineering, transaction management, ledger accounting, event-driven architecture, and modern frontend development.
 
-It uses **simulated payment-provider outcomes only**. It does not connect to a real payment network or move real money.
+The application provides a dashboard for managing simulated payments, reviewing ledger entries, running reconciliation, configuring webhooks, and inspecting audit events.
 
-## Features
+> **Important:** FluxPay is an educational portfolio project. Payment-provider outcomes are simulated. It does not process real bank transfers or move real money.
 
-### Backend and API
-- Java 21 and Spring Boot 4.1.1
-- User registration and login with BCrypt password hashing and JWT access tokens
-- Authenticated, user-scoped payment listing and retrieval
-- Request validation, consistent API errors, and payment-state transition rules
-- Idempotency checks to prevent duplicate payment creation
-- PostgreSQL persistence with versioned Flyway database migrations
-- Spring Data JPA repositories and transactional service operations
-- Health checks with Spring Boot Actuator
-- OpenAPI documentation and Swagger UI
+## 🚀 Live Demo
 
-### Payment processing
-- Simulated payment provider and reconciliation workflow
-- Payment lifecycle management, including pending, completed, and failed states
+| Resource | Link |
+|---|---|
+| **Live Application** | [Open FluxPay Dashboard](https://fluxpay-frontend-prasanna.onrender.com) |
+| **Backend API** | [FluxPay API on Render](https://fluxpay-xdck.onrender.com) |
+| **API Health** | [Check API Health](https://fluxpay-xdck.onrender.com/actuator/health) |
+| **Swagger UI** | [Explore API Documentation](https://fluxpay-xdck.onrender.com/swagger-ui.html) |
+| **GitHub Repository** | [Prasanna9145/fluxpay](https://github.com/Prasanna9145/fluxpay) |
+
+The live application has been manually tested by the project maintainer for registration, login, dashboard data, and the main payment workflows.
+
+**Hosting note:** The live demo uses free hosting and may take longer to respond after a period of inactivity.
+
+## ✨ Features
+
+### Authentication and API
+
+- User registration and login
+- BCrypt password hashing
+- JWT-based authentication
+- Authenticated, user-scoped payment operations
+- Request validation and consistent API error handling
+- Payment-state transition rules
+- Idempotency support for payment creation
+- PostgreSQL persistence
+- Flyway database migrations
+- Spring Boot Actuator health endpoint
+- OpenAPI specification and Swagger UI
+
+### Payment processing and reconciliation
+
+- Simulated payment-provider integration
+- Payment lifecycle management: `PENDING`, `COMPLETED`, and `FAILED`
+- Manual reconciliation workflow
 - Double-entry ledger entries for completed payments
-- Ledger balance checks and stable keys for duplicate-entry protection
-- Transactional outbox for tracking events intended for Kafka publication
-- Kafka topics for payment-created and payment-status-changed events
-- Redis-backed fixed-window rate limiting with an in-memory development fallback
+- Ledger balance validation
+- Stable keys designed to prevent duplicate ledger entries
+- Transactional outbox for events intended for publication
+- Kafka integration for payment-related events
+- Redis-backed fixed-window rate limiting, with an in-memory fallback when Redis is unavailable
 
 ### Webhooks and audit
-- HTTPS webhook endpoint registration; HTTP is allowed only for loopback addresses
+
+- Webhook endpoint registration
 - HMAC-SHA256 signed webhook payloads
-- Webhook delivery history and retry scheduling with exponential backoff
-- Per-account audit events for important application activities
+- Webhook delivery history
+- Retry scheduling with exponential backoff
+- HTTPS webhook support; HTTP is restricted to loopback addresses
+- Audit events for important application activities
 
 ### Frontend and deployment
-- React and TypeScript operations dashboard
-- Payments, ledger, webhook, and audit-trail views
-- Docker Compose for local services
-- Multi-stage Docker builds for the API and frontend
-- GitHub Actions workflow for continuous integration
 
-## Architecture
+- Responsive React and TypeScript dashboard
+- Payment list and payment details
+- Ledger and reconciliation views
+- Webhook management and delivery history
+- Audit-trail interface
+- Docker and Docker Compose support
+- Multi-stage Docker builds
+- GitHub Actions continuous-integration workflow
+- Public frontend and backend deployment
+
+## 🖥️ Dashboard Preview
+
+Open the [live FluxPay dashboard](https://fluxpay-frontend-prasanna.onrender.com) to explore the application.
+
+The interface provides a central view of payment activity, ledger information, reconciliation, webhooks, and audit events.
+
+## 🏗️ Architecture
 
 ```mermaid
 flowchart TD
@@ -48,46 +84,51 @@ flowchart TD
     B --> D[Payment Service]
     D --> E[(PostgreSQL)]
     D --> F[Transactional Outbox]
-    F --> G[Kafka]
+    F --> G[Apache Kafka]
     D --> H[Simulated Payment Provider]
     H --> I[Reconciliation]
     I --> J[Double-Entry Ledger]
     I --> K[Webhook Delivery Queue]
-    K --> L[External Test Endpoint]
+    K --> L[External Webhook Endpoint]
     B --> M[Redis Rate Limiting]
     B --> N[Audit Trail]
 ```
 
-This is a simplified logical architecture. Actual asynchronous processing and delivery behavior should be validated against the current configuration and tests.
+The diagram represents the intended application architecture. Kafka and Redis are included in the local Docker Compose environment. The live deployment's messaging and cache capabilities depend on the services configured for that environment.
 
-## Technology stack
+## 🛠️ Technology Stack
 
 | Component | Technology |
 |---|---|
 | Language | Java 21 |
 | Backend | Spring Boot 4.1.1 |
 | API | REST, OpenAPI, Swagger UI |
-| Authentication | Spring Security, BCrypt, JWT |
+| Security | Spring Security, BCrypt, JWT |
 | Database | PostgreSQL |
-| Schema migrations | Flyway |
+| Database migrations | Flyway |
+| ORM | Spring Data JPA, Hibernate |
 | Messaging | Apache Kafka |
 | Rate limiting | Redis |
-| Frontend | React, TypeScript, Vite |
+| Frontend | React 19, TypeScript |
+| Frontend tooling | Vite |
 | Web server | Nginx |
 | Containers | Docker, Docker Compose |
+| Hosting | Render |
+| Cloud database | Neon PostgreSQL |
 | CI | GitHub Actions |
 
-## Quick start with Docker
+## ⚙️ Run Locally with Docker
 
 ### Prerequisites
 
-- Docker Desktop installed and running
-- Docker Compose enabled
-- Internet access for initial image and dependency downloads
+Install the following before starting:
 
-### 1. Get the project
+- Git
+- Docker Desktop
+- Docker Compose
+- Internet access for downloading dependencies and container images
 
-Clone the repository:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Prasanna9145/fluxpay.git
@@ -95,8 +136,6 @@ cd fluxpay
 ```
 
 ### 2. Configure environment variables
-
-Create a local environment file from the provided template.
 
 On Windows PowerShell:
 
@@ -111,73 +150,71 @@ On macOS or Linux:
 cp .env.example .env
 ```
 
-Set a unique local database password and replace the JWT secret with a securely generated random value of at least 32 bytes.
+Configure a unique local database password and replace the JWT secret with a securely generated random value of at least 32 bytes.
 
-**Never commit `.env` or share its contents.** The repository's `.gitignore` excludes this file.
+Use local development credentials only.
 
-The values in `.env.example` are placeholders and should be changed before starting the stack.
+**Never commit `.env`, database passwords, JWT secrets, or other credentials to GitHub.** The `.env` file should remain untracked.
 
 ### 3. Build and start the application
 
-From the repository root, run:
+From the repository root:
 
 ```bash
 docker compose up --build -d
 ```
 
-Check service status:
+Check the service status:
 
 ```bash
 docker compose ps
 ```
 
-Inspect API logs if necessary:
+Inspect the backend logs if the API does not start:
 
 ```bash
 docker compose logs --tail=100 api
 ```
 
-Follow live logs:
+To follow the backend logs continuously:
 
 ```bash
 docker compose logs -f api
 ```
 
-### 4. Open the application
+### 4. Open the local application
 
 | Service | URL |
 |---|---|
 | Dashboard | http://localhost:4173 |
-| API | http://localhost:8080 |
+| Backend API | http://localhost:8080 |
 | Swagger UI | http://localhost:8080/swagger-ui.html |
 | OpenAPI JSON | http://localhost:8080/v3/api-docs |
 | Actuator health | http://localhost:8080/actuator/health |
 
-Register a demo account, sign in, create a test payment, and run reconciliation through the dashboard.
-
-The provider is simulated. Outcomes are designed for repeatable demonstrations; a completed payment is not proof of a real bank transfer or settlement.
+Register a demo account, sign in, create a simulated payment, and run reconciliation through the dashboard.
 
 ### 5. Stop the application
 
-Stop the services:
+Stop the containers:
 
 ```bash
 docker compose down
 ```
 
-To also delete local database and broker data volumes:
+To delete the associated local database and broker volumes as well:
 
 ```bash
 docker compose down -v
 ```
 
-**Warning:** The `-v` option permanently removes the associated local Docker volumes and their stored demo data. Do not use it unless you intend to reset that data.
+**Warning:** The second command permanently deletes data stored in those Docker volumes. Only use it when you intend to reset the local environment.
 
-## Run the backend directly
+## 💻 Development Without Dockerizing the API
 
-This mode is intended for development. Docker is still used for supporting infrastructure.
+Docker is still used for supporting infrastructure in this mode.
 
-### 1. Start infrastructure
+### 1. Start PostgreSQL, Redis, and Kafka
 
 From the repository root:
 
@@ -185,7 +222,7 @@ From the repository root:
 docker compose up -d postgres redis kafka
 ```
 
-### 2. Configure environment variables
+### 2. Configure backend environment variables
 
 Example for Windows PowerShell:
 
@@ -196,11 +233,10 @@ $env:DB_PASSWORD = "your-local-password"
 $env:APP_JWT_SECRET = "replace-with-at-least-32-random-bytes"
 $env:KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 $env:REDIS_HOST = "localhost"
+$env:REDIS_PORT = "6379"
 ```
 
-Use the same database password configured for the PostgreSQL service in Docker Compose.
-
-Never reuse demo credentials in a production environment.
+Use the database credentials configured in your local Docker Compose environment. Do not reuse these demo credentials in a production environment.
 
 ### 3. Run Spring Boot
 
@@ -216,11 +252,11 @@ On macOS or Linux:
 ./mvnw spring-boot:run
 ```
 
-The API should be available at `http://localhost:8080` after startup completes.
+The backend should become available at `http://localhost:8080` after successful startup.
 
-## Run the frontend directly
+## 🎨 Run the Frontend Separately
 
-Use a recent Node.js installation.
+Install a recent Node.js version.
 
 From the repository root:
 
@@ -230,13 +266,22 @@ npm install
 npm run dev
 ```
 
-Vite normally serves the development dashboard at:
+Vite normally serves the dashboard at:
 
 http://localhost:5173
 
-The frontend uses `http://localhost:8080` as its default API base URL. Configure `VITE_API_BASE_URL` at build time if your API runs elsewhere. The backend's permitted browser origins are controlled by `CORS_ALLOWED_ORIGINS`.
+The frontend uses `http://localhost:8080` as its default API base URL. When the API runs at a different address, set `VITE_API_BASE_URL` before building the frontend.
 
-### Production frontend build
+For example, a local PowerShell session can use:
+
+```powershell
+$env:VITE_API_BASE_URL = "http://localhost:8080"
+npm run build
+```
+
+The backend's allowed browser origins are controlled by `CORS_ALLOWED_ORIGINS`.
+
+### Build the production frontend
 
 From the `frontend` directory:
 
@@ -244,153 +289,107 @@ From the `frontend` directory:
 npm run build
 ```
 
-The build script runs the TypeScript check before generating the production assets with Vite.
+The build runs the TypeScript check and generates the production assets using Vite.
 
-## API reference
+## 📡 API Reference
 
-Except for registration and login, the API endpoints below require a valid access token in the `Authorization: Bearer <token>` header.
+Except for registration and login, the endpoints below require a valid access token in the `Authorization: Bearer <token>` header.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/api/v1/health` | Basic health response |
 | POST | `/api/v1/auth/register` | Register a user |
 | POST | `/api/v1/auth/login` | Authenticate and issue a JWT |
-| GET | `/api/v1/dashboard/summary` | Payment counts and completed volume by currency |
+| GET | `/api/v1/dashboard/summary` | Payment summary and completed volume |
 | POST | `/api/v1/payments` | Create a payment |
 | GET | `/api/v1/payments` | List the authenticated user's payments |
-| GET | `/api/v1/payments/{id}` | Retrieve one of the user's payments |
-| PATCH | `/api/v1/payments/{id}/status` | Request a status change allowed by the transition rules |
-| POST | `/api/v1/reconciliation/run` | Process eligible payments using the simulated provider |
+| GET | `/api/v1/payments/{id}` | Retrieve a payment |
+| PATCH | `/api/v1/payments/{id}/status` | Request an allowed payment status change |
+| POST | `/api/v1/reconciliation/run` | Reconcile eligible payments |
 | GET | `/api/v1/ledger` | List ledger entries |
 | GET | `/api/v1/ledger/payments/{paymentId}` | List ledger entries for a payment |
 | POST | `/api/v1/webhooks` | Register a webhook endpoint |
 | GET | `/api/v1/webhooks` | List registered webhook endpoints |
-| GET | `/api/v1/webhooks/deliveries` | View webhook delivery and retry history |
-| GET | `/api/v1/audit` | View the authenticated user's audit events |
+| GET | `/api/v1/webhooks/deliveries` | View delivery and retry history |
+| GET | `/api/v1/audit` | View audit events |
 | GET | `/v3/api-docs` | OpenAPI specification |
 | GET | `/swagger-ui.html` | Swagger UI |
 
-Consult Swagger UI for the current request schemas and response formats.
+Use Swagger UI to inspect the current request schemas and response formats.
 
-## Example: create a test payment with PowerShell
-
-Start the application and make sure its API is available before running this example.
-
-```powershell
-$body = @{
-    username = "demo_user"
-    password = "change-this-demo-password"
-} | ConvertTo-Json
-
-Invoke-RestMethod `
-    -Method Post `
-    -Uri "http://localhost:8080/api/v1/auth/register" `
-    -ContentType "application/json" `
-    -Body $body
-
-$login = Invoke-RestMethod `
-    -Method Post `
-    -Uri "http://localhost:8080/api/v1/auth/login" `
-    -ContentType "application/json" `
-    -Body $body
-
-$headers = @{
-    Authorization = "Bearer $($login.token)"
-    "Idempotency-Key" = [guid]::NewGuid().ToString()
-}
-
-$payment = @{
-    amount = 1250.00
-    currency = "INR"
-    customerEmail = "customer@example.com"
-} | ConvertTo-Json
-
-Invoke-RestMethod `
-    -Method Post `
-    -Uri "http://localhost:8080/api/v1/payments" `
-    -Headers $headers `
-    -ContentType "application/json" `
-    -Body $payment
-
-Invoke-RestMethod `
-    -Method Post `
-    -Uri "http://localhost:8080/api/v1/reconciliation/run" `
-    -Headers @{ Authorization = "Bearer $($login.token)" }
-```
-
-Use a new username if `demo_user` already exists. The example uses fictional payment data and does not move real money.
-
-## Idempotency
+## 🔁 Payment Idempotency
 
 Payment creation accepts an `Idempotency-Key` header.
 
 The intended behavior is:
 
-- Repeating a request with the same key and the same payload returns the original payment rather than creating a duplicate.
-- Reusing the key with a different payload is rejected with `409 Conflict`.
+- Repeating a request with the same key and payload returns the original payment rather than creating a duplicate.
+- Reusing a key with a different payload is rejected with `409 Conflict`.
 
-Idempotency is important when clients retry requests after network failures. Concurrent requests and failure-recovery behavior should also be tested before relying on this design in a production system.
+Idempotency helps clients safely retry requests after network failures. Concurrency and failure-recovery behavior still require thorough testing before production use.
 
-## Payment lifecycle and ledger
+## 📒 Payment Lifecycle and Double-Entry Ledger
 
-```mermaid
-flowchart TD
-    A[Create payment] --> B[PENDING]
-    B --> C[Reconciliation]
-    C --> D[Simulated provider]
-    D --> E[COMPLETED]
-    D --> F[FAILED]
-    E --> G[Debit processor clearing]
-    G --> H[Credit merchant payables]
-```
+A typical simulated payment flow is:
 
-For a completed test payment, the ledger records equal-value entries in opposite directions:
+1. A user creates a payment.
+2. The payment begins in the `PENDING` state.
+3. Reconciliation invokes the simulated payment provider.
+4. The payment transitions to `COMPLETED` or `FAILED`, according to the simulated result.
+5. Completed payments produce corresponding ledger entries.
 
-- Debit: processor clearing
-- Credit: merchant payables
+For a completed INR 1,250 test payment, the ledger is designed to record:
 
-For the sample INR 1,250 payment, the debit and credit entries should each be INR 1,250, keeping the ledger balanced.
+| Entry | Account | Amount |
+|---|---|---:|
+| Debit | Processor clearing | ₹1,250 |
+| Credit | Merchant payables | ₹1,250 |
 
-These records model payment accounting. They do not mean that money has actually settled with a bank or payment provider.
+Equal debit and credit entries maintain the accounting balance for the simulated transaction.
 
-## Configuration and secrets
+These entries represent modeled payment accounting. They are not proof of an actual bank transfer, settlement, or movement of money.
 
-The following environment variables are relevant to local configuration:
+## 🔐 Configuration and Secrets
+
+The following environment variables are relevant to local development and deployment:
 
 | Variable | Purpose |
 |---|---|
 | `DB_URL` | PostgreSQL JDBC connection URL |
 | `DB_USERNAME` | Database username |
 | `DB_PASSWORD` | Database password |
-| `APP_JWT_SECRET` | Secret used to sign JWT access tokens |
-| `KAFKA_BOOTSTRAP_SERVERS` | Kafka broker addresses |
+| `APP_JWT_SECRET` | Secret used to sign JWT tokens |
+| `SERVER_PORT` | Backend listening port |
+| `KAFKA_BOOTSTRAP_SERVERS` | Kafka broker address or addresses |
 | `REDIS_HOST` | Redis hostname |
 | `REDIS_PORT` | Redis port |
 | `CORS_ALLOWED_ORIGINS` | Permitted browser origins |
 | `RATE_LIMIT_AUTH_PER_MINUTE` | Authentication rate limit |
 | `RATE_LIMIT_PAYMENT_PER_MINUTE` | Payment request rate limit |
-| `VITE_API_BASE_URL` | Frontend API URL at build time |
+| `VITE_API_BASE_URL` | Frontend API base URL, configured at build time |
+| `OUTBOX_POLL_INTERVAL_MS` | Outbox polling interval |
+| `WEBHOOK_POLL_INTERVAL_MS` | Webhook polling interval |
+| `WEBHOOK_MAX_ATTEMPTS` | Maximum webhook delivery attempts |
+| `WEBHOOK_RETRY_BASE_SECONDS` | Base delay for webhook retries |
 
-Use unique secrets in every environment. Keep credentials out of source code, frontend bundles, screenshots, logs, issues, and public documentation.
+For hosted environments, configure secrets through the hosting provider's environment-variable settings. Never place secrets in frontend variables, public documentation, source code, screenshots, or commit history.
 
-The `.env.example` file contains placeholders only. The local `.env` file should remain untracked.
+Use a unique JWT secret and database password for each environment.
 
-## Tests and verification
+## ✅ Testing and Verification
 
-### Verified locally
+The following checks have been reported during development or manual testing:
 
-The following checks were completed on the development machine in October 2026:
+- Backend Maven tests completed successfully in the local environment.
+- Docker images were built for the backend and frontend.
+- Docker Compose started the API, frontend, PostgreSQL, Redis, and Kafka locally.
+- PostgreSQL reported healthy and the API connected successfully.
+- Flyway validated the database migrations and the application started.
+- Manual UI checks covered registration, login, payment creation, reconciliation, ledger entries, and audit events.
+- A webhook smoke test confirmed that an external endpoint could receive a test request.
+- The frontend and backend were deployed publicly, and the project maintainer reported that login, dashboard data, and the main application workflows worked in the live demo.
 
-- `.\mvnw.cmd test` completed with `BUILD SUCCESS`.
-- `docker compose build api` completed successfully after adding the Spring Boot Flyway starter.
-- The frontend Docker image built successfully. A later explicit frontend build reused Docker's cached build layer; a fresh uncached build is a useful additional check.
-- Docker Compose started the API, frontend, PostgreSQL, Redis, and Kafka containers. PostgreSQL and Redis reported healthy.
-- Flyway successfully applied migrations V1 and V2, and the Spring Boot API started.
-- The database contained eight tables: `app_users`, `audit_events`, `flyway_schema_history`, `ledger_entries`, `outbox_events`, `payments`, `webhook_deliveries`, and `webhook_endpoints`.
-- Manual UI checks covered registration, login, simulated INR 1,250 payment creation, reconciliation to `COMPLETED`, balanced ledger entries, and audit events.
-- A webhook smoke test confirmed delivery of a payment-created event. A payment-changed event remained pending at the last check, so webhook delivery and retry behavior still require further verification.
-
-### Repeat the checks
+### Repeat local checks
 
 Backend tests:
 
@@ -398,42 +397,65 @@ Backend tests:
 .\mvnw.cmd test
 ```
 
-Fresh frontend build without Docker's build cache:
+Build the frontend Docker image without using the cache:
 
 ```powershell
 docker compose build frontend --no-cache
 ```
 
-Inspect service health:
+Inspect running containers:
 
 ```powershell
 docker compose ps
 ```
 
-Review `VERIFICATION.md` for the current summary of completed checks and remaining validation tasks.
+Review [`VERIFICATION.md`](VERIFICATION.md) for the current verification notes and remaining validation work.
 
-These checks establish a working local demonstration, not complete production readiness. Webhook retries, failure paths, concurrency, idempotency under concurrent requests, Kafka processing, security, and comprehensive integration/end-to-end testing still need further validation.
+These checks support a working educational demonstration. They do not establish complete production readiness, and the project has not been independently security-audited.
 
-## Continuous integration
+## 🔄 Continuous Integration
 
-The `.github/workflows/ci.yml` workflow is configured to run backend tests and the frontend type-check/build on pushes and pull requests.
+The repository includes a GitHub Actions workflow at `.github/workflows/ci.yml`.
 
-Review the **Actions** tab in GitHub after pushing changes to confirm that the workflow completes successfully. A successful local build does not automatically mean the remote CI workflow passed.
+The workflow is configured to run backend tests and frontend type-check/build steps on pushes and pull requests.
 
-## Security and production limitations
+Review the **Actions** tab in GitHub to confirm the current CI result. A successful local build does not automatically prove that the remote workflow has passed.
 
-FluxPay is an educational portfolio sandbox, not a production payment processor. It is not PCI-certified and must not be used to handle real payments, real customer financial data, or production credentials.
+## ☁️ Deployment
 
-A production implementation would need, among other things:
+The public demo is split across these services:
 
-- A formal threat model and independent security review
-- Managed secrets and key rotation
-- Hardened webhook egress controls and robust retry/dead-letter handling
-- Durable messaging configuration and recovery procedures
-- Database backup and restore testing
-- Alerting, observability, retention policies, and operational reconciliation procedures
-- Comprehensive concurrency, integration, load, and end-to-end testing
+| Component | Hosting |
+|---|---|
+| React frontend | Render Static Site |
+| Spring Boot API | Render Web Service |
+| PostgreSQL database | Neon |
 
-## License
+The frontend is configured to call the public API through `VITE_API_BASE_URL`. The API's allowed browser origin is controlled by `CORS_ALLOWED_ORIGINS`.
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE).
+The local Docker Compose environment also includes Kafka and Redis. To deploy the full event-driven architecture in the cloud, configure reachable managed Kafka and Redis services and provide their connection settings to the backend. Do not assume that local supporting services are automatically available to the hosted application.
+
+Free hosting may sleep when idle, impose resource limits, or have service-specific usage restrictions.
+
+## ⚠️ Security and Production Limitations
+
+FluxPay is an educational payment sandbox, not a production payment processor. It is not PCI-certified and must not be used to handle real payments, real customer financial data, or production credentials.
+
+A real financial application would require additional work, including:
+
+- Formal threat modeling and independent security review
+- Strong secret management and key rotation
+- Durable messaging and dead-letter/recovery procedures
+- Robust webhook retry, monitoring, and failure handling
+- Database backup and restoration testing
+- Concurrency, idempotency, integration, load, and end-to-end tests
+- Alerting, observability, audit retention, and operational reconciliation procedures
+- Production-grade identity, access control, incident response, and compliance processes
+
+## 📄 License
+
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
+
+---
+
+Built as a software engineering portfolio project to explore payment APIs, transaction workflows, double-entry accounting, event-driven systems, webhooks, and full-stack development.
